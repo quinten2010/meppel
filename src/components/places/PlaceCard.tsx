@@ -181,10 +181,13 @@ export function PlaceCard({ place, variant = 'standard', isLoading, className }:
   )
 
   if (variant === 'compact') {
+    const linkHref = place.website || `/places/${place.slug}`
     return (
       <StaggerItem>
         <Link
-          href={`/places/${place.slug}`}
+          href={linkHref}
+          target={place.website ? '_blank' : undefined}
+          rel={place.website ? 'noopener noreferrer' : undefined}
           className={cn(
             'flex items-center gap-3 p-2 rounded-2xl transition-all duration-200 hover:bg-white/5 group',
             className
@@ -197,10 +200,13 @@ export function PlaceCard({ place, variant = 'standard', isLoading, className }:
   }
 
   if (variant === 'hero') {
+    const linkHref = place.website || `/places/${place.slug}`
     return (
       <StaggerItem>
         <Link
-          href={`/places/${place.slug}`}
+          href={linkHref}
+          target={place.website ? '_blank' : undefined}
+          rel={place.website ? 'noopener noreferrer' : undefined}
           className={cn(
             'group block rounded-3xl overflow-hidden border border-border transition-all duration-300 hover:border-border-hover',
             className
@@ -212,10 +218,13 @@ export function PlaceCard({ place, variant = 'standard', isLoading, className }:
     )
   }
 
+  const linkHref = place.website || `/places/${place.slug}`
   return (
     <StaggerItem>
       <Link
-        href={`/places/${place.slug}`}
+        href={linkHref}
+        target={place.website ? '_blank' : undefined}
+        rel={place.website ? 'noopener noreferrer' : undefined}
         className={cn(
           'group block rounded-2xl overflow-hidden border border-border bg-bg-secondary transition-all duration-300',
           'hover:border-border-hover hover:shadow-lg hover:-translate-y-1',
