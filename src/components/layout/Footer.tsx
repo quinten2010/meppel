@@ -71,11 +71,6 @@ export function Footer() {
             </h3>
             <ul className="space-y-3">
               <li>
-                <Link href="/explore?category=restaurants" className="text-sm text-text-secondary hover:text-text-primary transition-colors">
-                  Restaurants
-                </Link>
-              </li>
-              <li>
                 <Link href="/explore?category=cafes" className="text-sm text-text-secondary hover:text-text-primary transition-colors">
                   Cafés
                 </Link>

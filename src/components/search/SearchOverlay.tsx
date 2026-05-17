@@ -14,7 +14,7 @@ const STORAGE_KEY = 'meppel-recent-searches'
 const MAX_RECENT = 5
 
 const trendingSearches = [
-  'cozy cafés', 'restaurants', 'parks', 'nightlife', 'hidden gems',
+  'cozy cafés', 'parks', 'nightlife', 'hidden gems',
   'student-friendly', 'family activities', 'weekend markets',
 ]
 

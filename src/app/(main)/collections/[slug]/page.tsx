@@ -16,10 +16,10 @@ interface PageProps {
 const collectionData: Record<string, { title: string; description: string; icon: string; gradient: string; categorySlug?: string }> = {
   'date-night': {
     title: 'Date Night Spots',
-    description: 'Romantic restaurants, cozy bars, and evening walks in Meppel. Perfect for that special someone.',
+    description: 'Romantic bars, cozy cafés, and evening walks in Meppel. Perfect for that special someone.',
     icon: 'heart',
     gradient: 'from-pink-500/20 to-rose-600/10',
-    categorySlug: 'restaurants',
+    categorySlug: 'bars',
   },
   'rainy-day': {
     title: 'Rainy Day Refuge',

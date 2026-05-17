@@ -15,7 +15,7 @@ const collections = [
   {
     slug: "date-night",
     title: "Date Night Spots",
-    description: "Romantic restaurants, cozy bars, and evening walks",
+    description: "Romantic bars, cozy cafés, and evening walks",
     icon: Heart,
     gradient: "from-pink-500/20 to-rose-600/10",
   },

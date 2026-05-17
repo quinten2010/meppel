@@ -9,7 +9,6 @@ export interface CategoryConfig {
 }
 
 export const CATEGORIES: CategoryConfig[] = [
-  { slug: 'restaurants', name: 'Restaurants', description: 'From casual to fine dining', icon: 'Utensils', color: '#E8A87C', gradient: 'from-orange-500/20 to-red-600/10', count: 18 },
   { slug: 'cafes', name: 'Cafés', description: 'Coffee, tea, and cozy corners', icon: 'Coffee', color: '#D98A6C', gradient: 'from-amber-500/20 to-orange-600/10', count: 12 },
   { slug: 'bars', name: 'Bars & Cafés', description: 'Borrel, cocktails, and late nights', icon: 'Wine', color: '#A78BFA', gradient: 'from-purple-500/20 to-pink-600/10', count: 8 },
   { slug: 'shopping', name: 'Shopping', description: 'Boutiques, markets, and stores', icon: 'ShoppingBag', color: '#60A5FA', gradient: 'from-blue-500/20 to-indigo-600/10', count: 15 },

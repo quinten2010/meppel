@@ -7,10 +7,9 @@ import { cn } from '@/lib/utils/cn'
 
 const placeholderTexts = [
   'Search for cozy cafés...',
-  'Find restaurants in Meppel...',
   'Discover hidden gems...',
   'Browse upcoming events...',
-  'Where to eat tonight?',
+  'Where to go tonight?',
 ]
 
 interface SearchBarProps {
