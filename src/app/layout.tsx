@@ -5,6 +5,7 @@ import { Navigation } from "@/components/layout/Navigation";
 import { Footer } from "@/components/layout/Footer";
 import { PageTransition } from "@/components/animation/PageTransition";
 import { ToastContainer } from "@/components/ui/toast";
+import { ScrollToTop } from "@/components/ui/ScrollToTop";
 import "./globals.css";
 
 const inter = Inter({
@@ -42,6 +43,7 @@ export default function RootLayout({
             <PageTransition>{children}</PageTransition>
           </main>
           <Footer />
+          <ScrollToTop />
           <ToastContainer />
         </Providers>
       </body>

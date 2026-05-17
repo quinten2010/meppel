@@ -19,6 +19,7 @@ interface EventCardProps {
 
 export function EventCard({ event, isLoading, className }: EventCardProps) {
   const [imgLoaded, setImgLoaded] = useState(false)
+  const [imgError, setImgError] = useState(false)
 
   if (isLoading || !event) {
     return <EventCardSkeleton className={className} />
@@ -28,6 +29,7 @@ export function EventCard({ event, isLoading, className }: EventCardProps) {
   const dayNumber = formatDayNumber(startDate)
   const month = formatMonth(startDate)
   const time = formatTime(startDate)
+  const hasPhoto = event.photo && !imgError
 
   return (
     <StaggerItem>
@@ -44,9 +46,9 @@ export function EventCard({ event, isLoading, className }: EventCardProps) {
             {!imgLoaded && (
               <Skeleton variant="rectangular" className="absolute inset-0" />
             )}
-            {event.photo ? (
+            {hasPhoto ? (
               <Image
-                src={event.photo}
+                src={event.photo!}
                 alt={event.name}
                 fill
                 className={cn(
@@ -54,6 +56,7 @@ export function EventCard({ event, isLoading, className }: EventCardProps) {
                   imgLoaded ? 'opacity-100' : 'opacity-0'
                 )}
                 onLoad={() => setImgLoaded(true)}
+                onError={() => setImgError(true)}
               />
             ) : (
               <div className="w-full h-full bg-gradient-card flex items-center justify-center">

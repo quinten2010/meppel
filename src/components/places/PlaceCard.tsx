@@ -25,12 +25,14 @@ interface PlaceCardProps {
 export function PlaceCard({ place, variant = 'standard', isLoading, className }: PlaceCardProps) {
   const [isSaved, setIsSaved] = useState(false)
   const [imgLoaded, setImgLoaded] = useState(false)
+  const [imgError, setImgError] = useState(false)
 
   if (isLoading || !place) {
     return <PlaceCardSkeleton variant={variant} className={className} />
   }
 
   const photo = place.photos?.[0]
+  const hasPhoto = photo && !imgError
   const categoryName = place.category?.name
 
   const content = (
@@ -44,7 +46,7 @@ export function PlaceCard({ place, variant = 'standard', isLoading, className }:
           {!imgLoaded && (
             <Skeleton variant="rectangular" className="absolute inset-0" />
           )}
-          {photo ? (
+          {hasPhoto ? (
             <Image
               src={photo}
               alt={place.name}
@@ -54,6 +56,7 @@ export function PlaceCard({ place, variant = 'standard', isLoading, className }:
                 imgLoaded ? 'opacity-100' : 'opacity-0'
               )}
               onLoad={() => setImgLoaded(true)}
+              onError={() => setImgError(true)}
             />
           ) : (
             <div className="w-full h-full bg-gradient-card flex items-center justify-center">

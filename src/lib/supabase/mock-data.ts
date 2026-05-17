@@ -35,6 +35,7 @@ export const MOCK_PLACES: Place[] = [
       saturday: '12:00-00:00',
     },
     photos: [
+      'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=800',
       'https://restaurantsukade.nl/wp-content/uploads/2026/05/sukade-voor-online-gebruik-45.jpg',
       'https://restaurantsukade.nl/wp-content/uploads/2026/03/sukade-voor-online-gebruik-77.jpg',
       'https://restaurantsukade.nl/wp-content/uploads/2025/01/sfeer-restaurant-sukade-social-media-189.jpg',
@@ -75,6 +76,7 @@ export const MOCK_PLACES: Place[] = [
       sunday: '16:00-22:00',
     },
     photos: [
+      'https://images.unsplash.com/photo-1555126634-323283788b12?w=800',
       'https://www.tonnamthai.nl/wp-content/uploads/2018/01/Schermafbeelding-2018-01-31-om-13.54.27.png',
       'https://www.tonnamthai.nl/wp-content/uploads/2018/01/Schermafbeelding-2018-01-08-om-12.08.39.png',
       'https://www.tonnamthai.nl/wp-content/uploads/2018/01/Schermafbeelding-2018-01-08-om-16.07.57.png',
@@ -689,3 +691,81 @@ export function isSupabaseAvailable(): boolean {
     !process.env.NEXT_PUBLIC_SUPABASE_URL.includes('placeholder')
   )
 }
+
+export const MOCK_REVIEWS = [
+  {
+    id: 'r1',
+    place_id: 'p1',
+    user_id: 'u1',
+    rating: 5,
+    text: 'Absolutely fantastic dining experience. The surprise menu was a journey through the best of Dutch cuisine. Service was impeccable and the canal view made it even more special.',
+    photos: [],
+    created_at: new Date(Date.now() - 7 * 86400000).toISOString(),
+    updated_at: new Date(Date.now() - 7 * 86400000).toISOString(),
+    user: {
+      id: 'u1',
+      username: 'FoodLoverMeppel',
+      avatar_url: null,
+    },
+  },
+  {
+    id: 'r2',
+    place_id: 'p1',
+    user_id: 'u2',
+    rating: 4,
+    text: 'Great food and atmosphere. The seafood platter was outstanding. Only minor complaint is that it was a bit noisy during peak hours.',
+    photos: [],
+    created_at: new Date(Date.now() - 14 * 86400000).toISOString(),
+    updated_at: new Date(Date.now() - 14 * 86400000).toISOString(),
+    user: {
+      id: 'u2',
+      username: 'DrentheEats',
+      avatar_url: null,
+    },
+  },
+  {
+    id: 'r3',
+    place_id: 'p2',
+    user_id: 'u3',
+    rating: 5,
+    text: 'Best Thai food in Drenthe! The Tom Yum soup is authentic and the Pad Thai is perfectly balanced. Generous portions and friendly staff.',
+    photos: [],
+    created_at: new Date(Date.now() - 3 * 86400000).toISOString(),
+    updated_at: new Date(Date.now() - 3 * 86400000).toISOString(),
+    user: {
+      id: 'u3',
+      username: 'ThaiFoodFan',
+      avatar_url: null,
+    },
+  },
+  {
+    id: 'r4',
+    place_id: 'p2',
+    user_id: 'u4',
+    rating: 4,
+    text: 'Solid Thai restaurant with authentic flavors. The green curry is my favorite. Would recommend booking ahead on weekends.',
+    photos: [],
+    created_at: new Date(Date.now() - 21 * 86400000).toISOString(),
+    updated_at: new Date(Date.now() - 21 * 86400000).toISOString(),
+    user: {
+      id: 'u4',
+      username: 'MeppelLocal',
+      avatar_url: null,
+    },
+  },
+  {
+    id: 'r5',
+    place_id: 'p3',
+    user_id: 'u5',
+    rating: 5,
+    text: 'Perfect spot for a rainy afternoon. Great coffee, cozy atmosphere, and the homemade apple pie is to die for!',
+    photos: [],
+    created_at: new Date(Date.now() - 5 * 86400000).toISOString(),
+    updated_at: new Date(Date.now() - 5 * 86400000).toISOString(),
+    user: {
+      id: 'u5',
+      username: 'CoffeeAddict',
+      avatar_url: null,
+    },
+  },
+]

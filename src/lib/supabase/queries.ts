@@ -1,5 +1,5 @@
 import { createClient } from './client'
-import { isSupabaseAvailable, MOCK_PLACES, MOCK_CATEGORIES, MOCK_EVENTS } from './mock-data'
+import { isSupabaseAvailable, MOCK_PLACES, MOCK_CATEGORIES, MOCK_EVENTS, MOCK_REVIEWS } from './mock-data'
 import type { Place, PlaceFilters, Event, EventFilters, Review, List } from '@/types'
 
 const PLACE_SELECT = `
@@ -186,7 +186,9 @@ export async function getEventBySlug(slug: string) {
 }
 
 export async function getReviewsForPlace(placeId: string) {
-  if (!isSupabaseAvailable()) return []
+  if (!isSupabaseAvailable()) {
+    return MOCK_REVIEWS.filter(r => r.place_id === placeId)
+  }
   const supabase = createClient()
   const { data, error } = await supabase
     .from('reviews')

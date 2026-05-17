@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useTransition, useCallback } from 'react'
+import { useState, useEffect, useTransition, useCallback } from 'react'
 import { EventCard } from '@/components/events/EventCard'
 import { PageTransition } from '@/components/animation/PageTransition'
 import { StaggerContainer } from '@/components/animation/StaggerContainer'
@@ -46,6 +46,10 @@ export default function EventsPage() {
       }
     })
   }, [])
+
+  useEffect(() => {
+    loadEvents(null, null)
+  }, [loadEvents])
 
   function handleDateChange(value: string | null) {
     const newDate = selectedDate === value ? null : value

@@ -29,6 +29,7 @@ function ExploreContent() {
 
   const observerRef = useRef<HTMLDivElement>(null)
   const currentPageRef = useRef(1)
+  const isLoadingRef = useRef(false)
 
   const category = searchParams.get('category') || undefined
   const mood = (searchParams.get('mood') as MoodTag) || undefined
@@ -45,22 +46,32 @@ function ExploreContent() {
   }), [category, mood, price, sort, query])
 
   const fetchPlaces = useCallback(async (pageNum: number, append: boolean) => {
+    if (isLoadingRef.current) return
+    isLoadingRef.current = true
+
     try {
       const { getPlaces } = await import('@/lib/supabase/queries')
       const data = await getPlaces({ ...filters, page: pageNum, pageSize: PAGE_SIZE })
       if (append) {
-        setPlaces((prev) => [...prev, ...(data as unknown as Place[])])
+        setPlaces((prev) => {
+          const existingIds = new Set(prev.map(p => p.id))
+          const newItems = (data as unknown as Place[]).filter(p => !existingIds.has(p.id))
+          return [...prev, ...newItems]
+        })
       } else {
         setPlaces(data as unknown as Place[])
       }
       setHasMore(data.length >= PAGE_SIZE)
     } catch {
       if (!append) setPlaces([])
+    } finally {
+      isLoadingRef.current = false
     }
   }, [filters])
 
   function resetAndFetch() {
     currentPageRef.current = 1
+    isLoadingRef.current = false
     setPlaces([])
     setHasMore(true)
     startTransition(async () => {
@@ -69,6 +80,7 @@ function ExploreContent() {
   }
 
   function loadMore() {
+    if (isLoadingRef.current || !hasMore) return
     const nextPage = currentPageRef.current + 1
     currentPageRef.current = nextPage
     startTransition(async () => {
@@ -100,10 +112,10 @@ function ExploreContent() {
   /* eslint-enable react-hooks/set-state-in-effect, react-hooks/exhaustive-deps */
 
   useEffect(() => {
-    if (!observerRef.current || !hasMore || isPending) return
+    if (!observerRef.current) return
     const observer = new IntersectionObserver(
       (entries) => {
-        if (entries[0].isIntersecting) {
+        if (entries[0].isIntersecting && hasMore && !isPending && !isLoadingRef.current) {
           loadMore()
         }
       },
@@ -112,7 +124,7 @@ function ExploreContent() {
     observer.observe(observerRef.current)
     return () => observer.disconnect()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [hasMore, isPending, places.length])
+  }, [hasMore, isPending])
 
   return (
     <PageTransition>
@@ -289,9 +301,11 @@ function ExploreContent() {
                     ))}
                   </div>
 
-                  <div ref={observerRef} className="h-10 mt-8" />
+                  {hasMore && (
+                    <div ref={observerRef} className="h-10 mt-8" />
+                  )}
 
-                  {isPending && (
+                  {isPending && places.length > 0 && (
                     <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mt-4">
                       {Array.from({ length: 3 }).map((_, i) => (
                         <PlaceCard key={`loading-${i}`} isLoading variant="standard" />

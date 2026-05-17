@@ -1,5 +1,6 @@
 import { SearchBar } from "@/components/search/SearchBar";
 import { PlaceCard } from "@/components/places/PlaceCard";
+import { EventCard } from "@/components/events/EventCard";
 import { MapView } from "@/components/map/MapView";
 import { SectionHeader } from "@/components/shared/SectionHeader";
 import { CategoryPill } from "@/components/shared/CategoryPill";
@@ -7,8 +8,8 @@ import { PageTransition } from "@/components/animation/PageTransition";
 import { StaggerContainer } from "@/components/animation/StaggerContainer";
 import { MotionWrapper } from "@/components/animation/MotionWrapper";
 import { CATEGORIES } from "@/lib/constants/categories";
-import { getTrendingPlaces, getFeaturedPlaces, getCategories } from "@/lib/supabase/queries";
-import { Heart, CloudSun, Coffee } from "lucide-react";
+import { getTrendingPlaces, getFeaturedPlaces, getCategories, getEvents } from "@/lib/supabase/queries";
+import { Heart, CloudSun, Coffee, Calendar } from "lucide-react";
 
 const collections = [
   {
@@ -35,10 +36,11 @@ const collections = [
 ];
 
 export default async function HomePage() {
-  const [trendingPlaces, featuredPlaces, categories] = await Promise.all([
+  const [trendingPlaces, featuredPlaces, categories, events] = await Promise.all([
     getTrendingPlaces(10),
     getFeaturedPlaces(),
     getCategories(),
+    getEvents({}),
   ]);
 
   return (
@@ -169,6 +171,20 @@ export default async function HomePage() {
           </div>
         </section>
 
+        {/* What's On */}
+        <section className="px-6 md:px-8 max-w-7xl mx-auto mb-24">
+          <SectionHeader
+            title="What's On"
+            subtitle="Upcoming events in Meppel"
+            link={{ href: "/events", label: "View all events" }}
+          />
+          <div className="space-y-4">
+            {events.slice(0, 4).map((event) => (
+              <EventCard key={event.id} event={event} />
+            ))}
+          </div>
+        </section>
+
         {/* Map Preview */}
         <section className="px-6 md:px-8 max-w-7xl mx-auto mb-24">
           <SectionHeader
@@ -177,6 +193,38 @@ export default async function HomePage() {
           />
           <MotionWrapper className="h-[400px] md:h-[500px] rounded-2xl overflow-hidden border border-border">
             <MapView interactive={false} className="w-full h-full" />
+          </MotionWrapper>
+        </section>
+
+        {/* Newsletter CTA */}
+        <section className="px-6 md:px-8 max-w-7xl mx-auto mb-24">
+          <MotionWrapper>
+            <div className="relative overflow-hidden rounded-3xl border border-border bg-gradient-to-br from-accent/10 via-bg-primary to-accent/5 p-8 md:p-12">
+              <div className="max-w-2xl mx-auto text-center">
+                <div className="w-14 h-14 rounded-2xl bg-accent/10 flex items-center justify-center mx-auto mb-6">
+                  <Calendar className="w-7 h-7 text-accent" />
+                </div>
+                <h2 className="text-3xl md:text-4xl font-display font-semibold text-text-primary mb-4">
+                  Never miss an event
+                </h2>
+                <p className="text-text-secondary mb-8 max-w-md mx-auto">
+                  Get weekly updates on the best places and events in Meppel, delivered straight to your inbox.
+                </p>
+                <div className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
+                  <input
+                    type="email"
+                    placeholder="Your email address"
+                    className="flex-1 px-5 py-3 rounded-full bg-white/5 border border-border text-text-primary placeholder:text-text-tertiary focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent/30 transition-all duration-300"
+                  />
+                  <button className="px-6 py-3 rounded-full bg-accent text-white font-medium hover:bg-accent/90 transition-colors shrink-0">
+                    Subscribe
+                  </button>
+                </div>
+                <p className="text-xs text-text-tertiary mt-4">
+                  No spam, unsubscribe at any time.
+                </p>
+              </div>
+            </div>
           </MotionWrapper>
         </section>
       </StaggerContainer>
