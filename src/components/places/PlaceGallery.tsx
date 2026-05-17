@@ -16,17 +16,30 @@ export function PlaceGallery({ photos, blurhashes, className }: PlaceGalleryProp
   const [isOpen, setIsOpen] = useState(false)
   const [currentIndex, setCurrentIndex] = useState(0)
   const [loadedImages, setLoadedImages] = useState<Set<number>>(new Set())
+  const [errorImages, setErrorImages] = useState<Set<number>>(new Set())
+  const [lightboxError, setLightboxError] = useState(false)
+
+  const handleImageError = useCallback((index: number) => {
+    setErrorImages((prev) => new Set(prev).add(index))
+  }, [])
+
+  const handleLightboxImageError = useCallback(() => {
+    setLightboxError(true)
+  }, [])
 
   const openGallery = useCallback((index: number) => {
     setCurrentIndex(index)
     setIsOpen(true)
+    setLightboxError(false)
   }, [])
 
   const handlePrev = useCallback(() => {
+    setLightboxError(false)
     setCurrentIndex((prev) => (prev === 0 ? photos.length - 1 : prev - 1))
   }, [photos.length])
 
   const handleNext = useCallback(() => {
+    setLightboxError(false)
     setCurrentIndex((prev) => (prev === photos.length - 1 ? 0 : prev + 1))
   }, [photos.length])
 
@@ -69,16 +82,23 @@ export function PlaceGallery({ photos, blurhashes, className }: PlaceGalleryProp
               style={{ backgroundImage: blurhashes?.[0] ? 'url(placeholder)' : undefined }}
             />
           )}
-          <Image
-            src={mainPhoto}
-            alt=""
-            fill
-            className={cn(
-              'object-cover transition-all duration-500 group-hover:scale-105',
-              loadedImages.has(0) ? 'opacity-100' : 'opacity-0'
-            )}
-            onLoad={() => setLoadedImages((prev) => new Set(prev).add(0))}
-          />
+{errorImages.has(0) ? (
+            <div className="absolute inset-0 bg-gradient-card flex items-center justify-center">
+              <ImageIcon className="w-8 h-8 text-text-tertiary" />
+            </div>
+          ) : (
+            <Image
+              src={mainPhoto}
+              alt=""
+              fill
+              className={cn(
+                'object-cover transition-all duration-500 group-hover:scale-105',
+                loadedImages.has(0) ? 'opacity-100' : 'opacity-0'
+              )}
+              onLoad={() => setLoadedImages((prev) => new Set(prev).add(0))}
+              onError={() => handleImageError(0)}
+            />
+          )}
           <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
         </button>
 
@@ -91,22 +111,29 @@ export function PlaceGallery({ photos, blurhashes, className }: PlaceGalleryProp
                 onClick={() => openGallery(idx)}
                 className="relative overflow-hidden group cursor-pointer"
               >
-                {!loadedImages.has(idx) && (
+                {!loadedImages.has(idx) && !errorImages.has(idx) && (
                   <div
                     className="absolute inset-0 bg-cover bg-center"
                     style={{ backgroundImage: blurhashes?.[idx] ? 'url(placeholder)' : undefined }}
                   />
                 )}
-                <Image
-                  src={photo}
-                  alt=""
-                  fill
-                  className={cn(
-                    'object-cover transition-all duration-500 group-hover:scale-105',
-                    loadedImages.has(idx) ? 'opacity-100' : 'opacity-0'
-                  )}
-                  onLoad={() => setLoadedImages((prev) => new Set(prev).add(idx))}
-                />
+                {errorImages.has(idx) ? (
+                  <div className="absolute inset-0 bg-gradient-card flex items-center justify-center">
+                    <ImageIcon className="w-6 h-6 text-text-tertiary" />
+                  </div>
+                ) : (
+                  <Image
+                    src={photo}
+                    alt=""
+                    fill
+                    className={cn(
+                      'object-cover transition-all duration-500 group-hover:scale-105',
+                      loadedImages.has(idx) ? 'opacity-100' : 'opacity-0'
+                    )}
+                    onLoad={() => setLoadedImages((prev) => new Set(prev).add(idx))}
+                    onError={() => handleImageError(idx)}
+                  />
+                )}
                 <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
               </button>
             )
@@ -175,12 +202,19 @@ export function PlaceGallery({ photos, blurhashes, className }: PlaceGalleryProp
               className="max-w-5xl max-h-[85vh] px-4"
               onClick={(e) => e.stopPropagation()}
             >
-              <Image
-                src={photos[currentIndex]}
-                alt=""
-                fill
-                className="object-contain rounded-2xl"
-              />
+              {lightboxError ? (
+                <div className="w-full h-full flex items-center justify-center bg-white/10 rounded-2xl">
+                  <ImageIcon className="w-12 h-12 text-white/40" />
+                </div>
+              ) : (
+                <Image
+                  src={photos[currentIndex]}
+                  alt=""
+                  fill
+                  className="object-contain rounded-2xl"
+                  onError={handleLightboxImageError}
+                />
+              )}
             </motion.div>
           </motion.div>
         )}
