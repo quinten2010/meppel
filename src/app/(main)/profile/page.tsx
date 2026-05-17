@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, use } from 'react'
+import { useState, useCallback } from 'react'
 import Image from 'next/image'
 import { User, Mail, Bookmark, Heart, List, Plus } from 'lucide-react'
 import { useRouter } from 'next/navigation'
@@ -23,27 +23,7 @@ interface ProfileData {
   userLists: UserList[]
 }
 
-async function fetchProfileData(): Promise<ProfileData> {
-  const { createClient } = await import('@/lib/supabase/client')
-  const supabase = createClient()
-  const { data: { user: authUser } } = await supabase.auth.getUser()
-
-  if (!authUser) {
-    return { user: null, savedPlaces: [], userLists: [] }
-  }
-
-  const { getUserSaves, getUserLists } = await import('@/lib/supabase/queries')
-  const [saves, lists] = await Promise.all([
-    getUserSaves(authUser.id),
-    getUserLists(authUser.id),
-  ])
-
-  return {
-    user: authUser,
-    savedPlaces: saves?.map((s: { place?: Place }) => s.place).filter((p): p is Place => Boolean(p)) ?? [],
-    userLists: lists ?? [],
-  }
-}
+let cachedProfile: ProfileData | null = null
 
 export default function ProfilePage() {
   const router = useRouter()
@@ -52,8 +32,10 @@ export default function ProfilePage() {
   const [newListName, setNewListName] = useState('')
   const [newListDescription, setNewListDescription] = useState('')
 
-  const profilePromise = fetchProfileData()
-  const { user, savedPlaces, userLists } = use(profilePromise)
+  const refreshProfile = useCallback(() => {
+    cachedProfile = null
+    window.location.reload()
+  }, [])
 
   async function handleCreateList() {
     if (!newListName.trim()) return
@@ -66,13 +48,16 @@ export default function ProfilePage() {
         .select()
         .single()
       if (data) {
-        window.location.reload()
+        refreshProfile()
       }
       setNewListName('')
       setNewListDescription('')
       setCreateListOpen(false)
     } catch {}
   }
+
+  const profileData = cachedProfile || { user: null, savedPlaces: [], userLists: [] }
+  const { user, savedPlaces, userLists } = profileData
 
   if (!user) {
     return (

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, use } from 'react'
+import { useState, useTransition, useCallback } from 'react'
 import { EventCard } from '@/components/events/EventCard'
 import { PageTransition } from '@/components/animation/PageTransition'
 import { StaggerContainer } from '@/components/animation/StaggerContainer'
@@ -26,21 +26,38 @@ const categoryFilters: { value: EventCategory; label: string }[] = [
   { value: 'nightlife', label: 'Nightlife' },
 ]
 
-async function fetchEvents(filters: EventFilters): Promise<Event[]> {
-  const { getEvents } = await import('@/lib/supabase/queries')
-  return getEvents(filters)
-}
-
 export default function EventsPage() {
+  const [events, setEvents] = useState<Event[]>([])
+  const [isPending, startTransition] = useTransition()
   const [selectedDate, setSelectedDate] = useState<string | null>(null)
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
 
-  const filters: EventFilters = {}
-  if (selectedDate) filters.date = selectedDate as EventFilters['date']
-  if (selectedCategory) filters.category = selectedCategory as EventCategory
+  const loadEvents = useCallback((date: string | null, category: string | null) => {
+    startTransition(async () => {
+      try {
+        const { getEvents } = await import('@/lib/supabase/queries')
+        const filters: EventFilters = {}
+        if (date) filters.date = date as EventFilters['date']
+        if (category) filters.category = category as EventCategory
+        const data = await getEvents(filters)
+        setEvents(data)
+      } catch {
+        setEvents([])
+      }
+    })
+  }, [])
 
-  const eventsPromise = fetchEvents(filters)
-  const events = use(eventsPromise)
+  function handleDateChange(value: string | null) {
+    const newDate = selectedDate === value ? null : value
+    setSelectedDate(newDate)
+    loadEvents(newDate, selectedCategory)
+  }
+
+  function handleCategoryChange(value: string | null) {
+    const newCategory = selectedCategory === value ? null : value
+    setSelectedCategory(newCategory)
+    loadEvents(selectedDate, newCategory)
+  }
 
   return (
     <PageTransition>
@@ -55,7 +72,7 @@ export default function EventsPage() {
             {dateFilters.map((df) => (
               <button
                 key={df.value}
-                onClick={() => setSelectedDate(selectedDate === df.value ? null : df.value)}
+                onClick={() => handleDateChange(df.value)}
                 className={cn(
                   'shrink-0 px-4 py-2 rounded-full text-sm font-medium border transition-all duration-300',
                   selectedDate === df.value
@@ -72,7 +89,7 @@ export default function EventsPage() {
             {categoryFilters.map((cf) => (
               <button
                 key={cf.value}
-                onClick={() => setSelectedCategory(selectedCategory === cf.value ? null : cf.value)}
+                onClick={() => handleCategoryChange(cf.value)}
                 className={cn(
                   'shrink-0 px-3 py-1.5 rounded-full text-xs font-medium border transition-all duration-300',
                   selectedCategory === cf.value
@@ -85,7 +102,13 @@ export default function EventsPage() {
             ))}
           </div>
 
-          {events.length === 0 ? (
+          {isPending ? (
+            <div className="space-y-4">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <EventCard key={i} isLoading />
+              ))}
+            </div>
+          ) : events.length === 0 ? (
             <EmptyState
               icon="calendar"
               title="No events found"

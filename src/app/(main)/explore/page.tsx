@@ -1,6 +1,6 @@
 'use client'
 
-import { Suspense, useState, useRef, useCallback, useMemo, use, useEffect } from 'react'
+import { Suspense, useState, useRef, useCallback, useMemo, useTransition, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { SlidersHorizontal, LayoutGrid, Map as MapIcon, X } from 'lucide-react'
 import { PlaceCard } from '@/components/places/PlaceCard'
@@ -17,22 +17,18 @@ import type { Place, PlaceFilters, MoodTag, PriceLevel } from '@/types'
 
 const PAGE_SIZE = 12
 
-async function fetchPlaces(filters: PlaceFilters, pageNum: number): Promise<Place[]> {
-  const { getPlaces } = await import('@/lib/supabase/queries')
-  const data = await getPlaces({ ...filters, page: pageNum, pageSize: PAGE_SIZE })
-  return data as unknown as Place[]
-}
-
 function ExploreContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
 
-  const [page, setPage] = useState(1)
+  const [places, setPlaces] = useState<Place[]>([])
+  const [isPending, startTransition] = useTransition()
+  const [hasMore, setHasMore] = useState(true)
   const [showMap, setShowMap] = useState(false)
   const [searchOpen, setSearchOpen] = useState(false)
-  const [allPlaces, setAllPlaces] = useState<Place[]>([])
 
   const observerRef = useRef<HTMLDivElement>(null)
+  const currentPageRef = useRef(1)
 
   const category = searchParams.get('category') || undefined
   const mood = (searchParams.get('mood') as MoodTag) || undefined
@@ -48,35 +44,37 @@ function ExploreContent() {
     query,
   }), [category, mood, price, sort, query])
 
-  const placesPromise = useMemo(() => {
-    return fetchPlaces(filters, page)
-  }, [filters, page])
+  const fetchPlaces = useCallback(async (pageNum: number, append: boolean) => {
+    try {
+      const { getPlaces } = await import('@/lib/supabase/queries')
+      const data = await getPlaces({ ...filters, page: pageNum, pageSize: PAGE_SIZE })
+      if (append) {
+        setPlaces((prev) => [...prev, ...(data as unknown as Place[])])
+      } else {
+        setPlaces(data as unknown as Place[])
+      }
+      setHasMore(data.length >= PAGE_SIZE)
+    } catch {
+      if (!append) setPlaces([])
+    }
+  }, [filters])
 
-  const newPlaces = use(placesPromise)
-
-  if (page === 1) {
-    setAllPlaces(newPlaces)
-  } else if (newPlaces.length > 0) {
-    setAllPlaces((prev) => [...prev, ...newPlaces])
+  function resetAndFetch() {
+    currentPageRef.current = 1
+    setPlaces([])
+    setHasMore(true)
+    startTransition(async () => {
+      await fetchPlaces(1, false)
+    })
   }
 
-  const loadMore = useCallback(() => {
-    setPage((prev) => prev + 1)
-  }, [])
-
-  useEffect(() => {
-    if (!observerRef.current) return
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting && allPlaces.length >= PAGE_SIZE) {
-          loadMore()
-        }
-      },
-      { threshold: 0.1 }
-    )
-    observer.observe(observerRef.current)
-    return () => observer.disconnect()
-  }, [allPlaces.length, loadMore])
+  function loadMore() {
+    const nextPage = currentPageRef.current + 1
+    currentPageRef.current = nextPage
+    startTransition(async () => {
+      await fetchPlaces(nextPage, true)
+    })
+  }
 
   function updateFilter(key: string, value: string | null) {
     const params = new URLSearchParams(searchParams.toString())
@@ -94,6 +92,27 @@ function ExploreContent() {
   }
 
   const hasActiveFilters = filters.category || filters.mood || filters.price || filters.query
+
+  /* eslint-disable react-hooks/set-state-in-effect, react-hooks/exhaustive-deps */
+  useEffect(() => {
+    resetAndFetch()
+  }, [filters])
+  /* eslint-enable react-hooks/set-state-in-effect, react-hooks/exhaustive-deps */
+
+  useEffect(() => {
+    if (!observerRef.current || !hasMore || isPending) return
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          loadMore()
+        }
+      },
+      { threshold: 0.1 }
+    )
+    observer.observe(observerRef.current)
+    return () => observer.disconnect()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hasMore, isPending, places.length])
 
   return (
     <PageTransition>
@@ -241,7 +260,13 @@ function ExploreContent() {
             </div>
           ) : (
             <>
-              {allPlaces.length === 0 ? (
+              {isPending && places.length === 0 ? (
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {Array.from({ length: 6 }).map((_, i) => (
+                    <PlaceCard key={i} isLoading variant="standard" />
+                  ))}
+                </div>
+              ) : places.length === 0 ? (
                 <EmptyState
                   icon="search"
                   title="No places found"
@@ -259,12 +284,20 @@ function ExploreContent() {
               ) : (
                 <StaggerContainer>
                   <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {allPlaces.map((place) => (
+                    {places.map((place) => (
                       <PlaceCard key={place.id} place={place} variant="standard" />
                     ))}
                   </div>
 
                   <div ref={observerRef} className="h-10 mt-8" />
+
+                  {isPending && (
+                    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mt-4">
+                      {Array.from({ length: 3 }).map((_, i) => (
+                        <PlaceCard key={`loading-${i}`} isLoading variant="standard" />
+                      ))}
+                    </div>
+                  )}
                 </StaggerContainer>
               )}
             </>

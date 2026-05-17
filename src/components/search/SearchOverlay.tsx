@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef, useCallback, use } from 'react'
+import { useState, useRef, useCallback, useTransition } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Search, X, TrendingUp, Clock } from 'lucide-react'
 import { useRouter } from 'next/navigation'
@@ -18,22 +18,6 @@ const trendingSearches = [
   'student-friendly', 'family activities', 'weekend markets',
 ]
 
-async function searchPlaces(query: string): Promise<Place[]> {
-  const { getPlaces } = await import('@/lib/supabase/queries')
-  return getPlaces({ query, pageSize: 10 })
-}
-
-function getRecentSearches(): string[] {
-  if (typeof window === 'undefined') return []
-  const stored = localStorage.getItem(STORAGE_KEY)
-  if (stored) {
-    try {
-      return JSON.parse(stored)
-    } catch {}
-  }
-  return []
-}
-
 interface SearchOverlayProps {
   isOpen: boolean
   onClose: () => void
@@ -42,44 +26,53 @@ interface SearchOverlayProps {
 export function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
   const router = useRouter()
   const [query, setQuery] = useState('')
+  const [results, setResults] = useState<Place[]>([])
+  const [isPending, startTransition] = useTransition()
   const [selectedIndex, setSelectedIndex] = useState(-1)
   const inputRef = useRef<HTMLInputElement>(null)
   const resultsRef = useRef<HTMLDivElement>(null)
-  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  const recentSearches = getRecentSearches()
+  const recentSearches = useCallback(() => {
+    if (typeof window === 'undefined') return []
+    const stored = localStorage.getItem(STORAGE_KEY)
+    if (stored) {
+      try {
+        return JSON.parse(stored)
+      } catch {}
+    }
+    return []
+  }, [])
 
-  const handleSaveRecent = useCallback((search: string) => {
+  const saveRecentSearch = useCallback((search: string) => {
     const trimmed = search.trim()
     if (!trimmed) return
-    const current = getRecentSearches()
-    const updated = [trimmed, ...current.filter((s) => s !== trimmed)].slice(0, MAX_RECENT)
+    const current = recentSearches()
+    const updated = [trimmed, ...current.filter((s: string) => s !== trimmed)].slice(0, MAX_RECENT)
     localStorage.setItem(STORAGE_KEY, JSON.stringify(updated))
-  }, [])
-
-  const handleRemoveRecent = useCallback((search: string) => {
-    const current = getRecentSearches()
-    const updated = current.filter((s) => s !== search)
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(updated))
-    window.location.reload()
-  }, [])
-
-  const handleClearRecent = useCallback(() => {
-    localStorage.removeItem(STORAGE_KEY)
-    window.location.reload()
-  }, [])
+  }, [recentSearches])
 
   const handleSelect = useCallback((search: string) => {
-    handleSaveRecent(search)
+    saveRecentSearch(search)
     setQuery(search)
-  }, [handleSaveRecent])
+  }, [saveRecentSearch])
 
   const handleSubmit = useCallback(() => {
     if (!query.trim()) return
-    handleSaveRecent(query)
+    saveRecentSearch(query)
     onClose()
     router.push(`/explore?q=${encodeURIComponent(query.trim())}`)
-  }, [query, handleSaveRecent, onClose, router])
+  }, [query, saveRecentSearch, onClose, router])
+
+  const removeRecent = useCallback((search: string) => {
+    const current = recentSearches()
+    const updated = current.filter((s: string) => s !== search)
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(updated))
+  }, [recentSearches])
+
+  const clearRecent = useCallback(() => {
+    localStorage.removeItem(STORAGE_KEY)
+  }, [])
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
@@ -90,36 +83,53 @@ export function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
 
       if (e.key === 'ArrowDown') {
         e.preventDefault()
-        setSelectedIndex((prev) => (prev < 9 ? prev + 1 : 0))
+        setSelectedIndex((prev) => (prev < results.length - 1 ? prev + 1 : 0))
       }
 
       if (e.key === 'ArrowUp') {
         e.preventDefault()
-        setSelectedIndex((prev) => (prev > 0 ? prev - 1 : 9))
+        setSelectedIndex((prev) => (prev > 0 ? prev - 1 : results.length - 1))
       }
 
       if (e.key === 'Enter') {
         e.preventDefault()
-        handleSubmit()
+        if (selectedIndex >= 0 && selectedIndex < results.length) {
+          const place = results[selectedIndex]
+          saveRecentSearch(place.name)
+          onClose()
+          router.push(`/places/${place.slug}`)
+        } else {
+          handleSubmit()
+        }
       }
     },
-    [onClose, handleSubmit]
+    [results, selectedIndex, onClose, router, handleSubmit, saveRecentSearch]
   )
 
   const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value
     setQuery(value)
     setSelectedIndex(-1)
+    setResults([])
 
-    if (debounceRef.current) {
-      clearTimeout(debounceRef.current)
-    }
+    if (!value.trim()) return
+
+    if (timerRef.current) clearTimeout(timerRef.current)
+    timerRef.current = setTimeout(() => {
+      startTransition(async () => {
+        try {
+          const { getPlaces } = await import('@/lib/supabase/queries')
+          const data = await getPlaces({ query: value.trim(), pageSize: 10 })
+          setResults(data)
+        } catch {
+          setResults([])
+        }
+      })
+    }, 300)
   }, [])
 
   const hasResults = query.trim().length > 0
-  const hasRecent = recentSearches.length > 0
-
-  const results = hasResults ? use(searchPlaces(query.trim())) : []
+  const hasRecent = recentSearches().length > 0
 
   return (
     <AnimatePresence>
@@ -130,7 +140,6 @@ export function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
           initial="closed"
           animate="open"
           exit="closed"
-          onAnimationComplete={() => inputRef.current?.focus()}
         >
           <div className="absolute inset-0 bg-black/80 backdrop-blur-2xl" onClick={onClose} />
 
@@ -157,7 +166,7 @@ export function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
             </div>
 
             <div className="mt-6 pb-32">
-              {!hasResults && (
+              {!hasResults && !isPending && (
                 <div className="space-y-6">
                   {hasRecent && (
                     <div>
@@ -167,15 +176,15 @@ export function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
                           <span className="font-medium">Recent Searches</span>
                         </div>
                         <button
-                          onClick={handleClearRecent}
+                          onClick={clearRecent}
                           className="text-xs text-text-tertiary hover:text-text-primary transition-colors"
                         >
                           Clear all
                         </button>
                       </div>
                       <div className="flex flex-wrap gap-2">
-                        {recentSearches.map((search) => (
-                          <div key={search} className="group relative">
+                        {recentSearches().map((search: string, i: number) => (
+                          <div key={`${search}-${i}`} className="group relative">
                             <button
                               onClick={() => handleSelect(search)}
                               className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-border text-sm text-text-secondary hover:text-text-primary hover:border-border-hover transition-all duration-200"
@@ -184,7 +193,7 @@ export function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
                               <span>{search}</span>
                             </button>
                             <button
-                              onClick={() => handleRemoveRecent(search)}
+                              onClick={() => removeRecent(search)}
                               className="absolute -top-1 -right-1 w-4 h-4 flex items-center justify-center rounded-full bg-bg-elevated border border-border opacity-0 group-hover:opacity-100 transition-opacity"
                             >
                               <X className="w-2.5 h-2.5 text-text-tertiary" />
@@ -215,7 +224,21 @@ export function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
                 </div>
               )}
 
-              {hasResults && results.length === 0 && (
+              {isPending && (
+                <div className="space-y-3 mt-4">
+                  {Array.from({ length: 5 }).map((_, i) => (
+                    <div key={i} className="flex items-center gap-3 p-3 animate-pulse">
+                      <div className="w-12 h-12 rounded-xl skeleton-shimmer" />
+                      <div className="flex-1 space-y-2">
+                        <div className="h-4 w-3/4 skeleton-shimmer rounded" />
+                        <div className="h-3 w-1/4 skeleton-shimmer rounded" />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {hasResults && !isPending && results.length === 0 && (
                 <EmptyState
                   icon="search"
                   title="No results found"
@@ -223,7 +246,7 @@ export function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
                 />
               )}
 
-              {hasResults && results.length > 0 && (
+              {hasResults && !isPending && results.length > 0 && (
                 <div ref={resultsRef} className="space-y-1">
                   <p className="text-xs text-text-tertiary mb-3">
                     {results.length} result{results.length !== 1 ? 's' : ''} for &ldquo;{query}&rdquo;
