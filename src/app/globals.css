@@ -1,0 +1,183 @@
+@import "tailwindcss";
+
+@theme {
+  --font-display: 'Instrument Serif', serif;
+  --font-sans: 'Inter', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+
+  --color-bg-primary: #0A0A0B;
+  --color-bg-secondary: #141415;
+  --color-bg-tertiary: #1E1E20;
+  --color-bg-elevated: #18181A;
+
+  --color-text-primary: #F5F5F0;
+  --color-text-secondary: #999994;
+  --color-text-tertiary: #5C5C58;
+
+  --color-border: #2A2A2C;
+  --color-border-hover: #3A3A3C;
+
+  --color-accent: #D98A6C;
+  --color-accent-soft: #F0D0C0;
+  --color-accent-dark: #B06A50;
+
+  --color-success: #22C55E;
+  --color-warning: #EAB308;
+  --color-error: #F43F5E;
+  --color-info: #3B82F6;
+
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-out-quart: cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+
+  body {
+    background-color: var(--color-bg-primary);
+    color: var(--color-text-primary);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  ::selection {
+    background-color: rgba(217, 138, 108, 0.3);
+    color: var(--color-text-primary);
+  }
+
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: var(--color-border);
+    border-radius: 3px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--color-border-hover);
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  .glass {
+    background: rgba(255, 255, 255, 0.04);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+  }
+
+  .glass-strong {
+    background: rgba(20, 20, 21, 0.85);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .gradient-accent {
+    background: linear-gradient(135deg, #E8A87C, #D98A6C, #C97B6C);
+  }
+
+  .gradient-card {
+    background: linear-gradient(180deg, transparent 50%, rgba(10, 10, 11, 0.85) 100%);
+  }
+
+  .gradient-hero {
+    background: linear-gradient(180deg, transparent 40%, rgba(10, 10, 11, 0.9) 100%);
+  }
+
+  .text-gradient {
+    background: linear-gradient(135deg, #E8A87C, #D98A6C);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .skeleton-shimmer {
+    background: linear-gradient(
+      90deg,
+      var(--color-bg-secondary) 25%,
+      var(--color-bg-tertiary) 50%,
+      var(--color-bg-secondary) 75%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.5s ease-in-out infinite;
+  }
+
+  @keyframes shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+  }
+
+  .animate-float {
+    animation: float 6s ease-in-out infinite;
+  }
+
+  @keyframes pulse-glow {
+    0%, 100% { opacity: 0.4; }
+    50% { opacity: 0.8; }
+  }
+
+  .animate-pulse-glow {
+    animation: pulse-glow 3s ease-in-out infinite;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+.light {
+  --color-bg-primary: #FAFAF8;
+  --color-bg-secondary: #F5F5F0;
+  --color-bg-tertiary: #EDEDE8;
+  --color-bg-elevated: #FFFFFF;
+
+  --color-text-primary: #1A1A18;
+  --color-text-secondary: #6B6B66;
+  --color-text-tertiary: #A3A39E;
+
+  --color-border: #E5E5E0;
+  --color-border-hover: #D4D4D0;
+}
+
+.light .glass {
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.light .glass-strong {
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+}
