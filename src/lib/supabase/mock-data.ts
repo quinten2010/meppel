@@ -106,7 +106,7 @@ export const MOCK_PLACES: Place[] = [
     postcode: '7941 AA',
     city: 'Meppel',
     phone: '+31 522 243 456',
-    website: null,
+    website: 'https://herbergthetplein.nl',
     instagram: '@herbergthetplein',
     hours: {
       monday: '10:00-01:00',
@@ -180,7 +180,7 @@ export const MOCK_PLACES: Place[] = [
     postcode: '7941 AA',
     city: 'Meppel',
     phone: '+31 522 240 055',
-    website: null,
+    website: 'https://grandcafedewheem.nl',
     instagram: '@grandcafedewheem',
     hours: {
       monday: '09:00-18:00',
@@ -253,7 +253,7 @@ export const MOCK_PLACES: Place[] = [
     postcode: '7941 AA',
     city: 'Meppel',
     phone: '+31 522 745 080',
-    website: null,
+    website: 'https://restaurantelement.nl',
     instagram: '@restaurantelement',
     hours: {
       wednesday: '18:00-22:00',
@@ -287,7 +287,7 @@ export const MOCK_PLACES: Place[] = [
     postcode: '7941 AB',
     city: 'Meppel',
     phone: '+31 522 245 890',
-    website: null,
+    website: 'https://desmulpaap.nl',
     instagram: '@desmulpaapmeppel',
     hours: {
       tuesday: '17:00-22:00',
@@ -326,7 +326,7 @@ export const MOCK_PLACES: Place[] = [
     postcode: '7941 AA',
     city: 'Meppel',
     phone: '+31 522 243 100',
-    website: null,
+    website: 'https://eetcafedegaper.nl',
     instagram: null,
     hours: {
       monday: '16:00-21:00',
@@ -366,7 +366,7 @@ export const MOCK_PLACES: Place[] = [
     postcode: '7941 AA',
     city: 'Meppel',
     phone: '+31 522 246 789',
-    website: null,
+    website: 'https://sushihousemeppel.nl',
     instagram: '@sushihousemeppel',
     hours: {
       tuesday: '12:00-21:00',
@@ -406,7 +406,7 @@ export const MOCK_PLACES: Place[] = [
     postcode: '7941 AA',
     city: 'Meppel',
     phone: '+31 522 247 456',
-    website: null,
+    website: 'https://bellanapoli.nl',
     instagram: '@bellanapolimeppel',
     hours: {
       tuesday: '16:00-22:00',
@@ -446,7 +446,7 @@ export const MOCK_PLACES: Place[] = [
     postcode: '7941 AB',
     city: 'Meppel',
     phone: '+31 522 248 321',
-    website: null,
+    website: 'https://burgerandco.nl',
     instagram: '@burgerandcomeppel',
     hours: {
       monday: '12:00-21:00',
@@ -487,7 +487,7 @@ export const MOCK_PLACES: Place[] = [
     postcode: '7941 AA',
     city: 'Meppel',
     phone: '+31 522 249 654',
-    website: null,
+    website: 'https://tandooripalace.nl',
     instagram: '@tandooripalacemeppel',
     hours: {
       tuesday: '16:00-22:00',
@@ -527,7 +527,7 @@ export const MOCK_PLACES: Place[] = [
     postcode: '7941 AA',
     city: 'Meppel',
     phone: '+31 522 244 567',
-    website: null,
+    website: 'https://drukkerijmuseum.nl',
     instagram: null,
     hours: {
       wednesday: '10:00-16:00',
@@ -561,7 +561,7 @@ export const MOCK_PLACES: Place[] = [
     postcode: '7941 AA',
     city: 'Meppel',
     phone: null,
-    website: null,
+    website: 'https://meppeltoren.nl',
     instagram: null,
     hours: {
       thursday: '10:00-16:00',
@@ -593,7 +593,7 @@ export const MOCK_PLACES: Place[] = [
     postcode: '7941 AA',
     city: 'Meppel',
     phone: null,
-    website: null,
+    website: 'https://molendevlijt.nl',
     instagram: null,
     hours: null,
     photos: ['https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=800', 'https://images.unsplash.com/photo-1473496169904-658ba7c44d3a?w=800', 'https://images.unsplash.com/photo-1448375240586-882707db888b?w=800'],
@@ -622,7 +622,7 @@ export const MOCK_PLACES: Place[] = [
     postcode: '7941 AA',
     city: 'Meppel',
     phone: null,
-    website: null,
+    website: 'https://stadsparkmeppel.nl',
     instagram: null,
     hours: null,
     photos: ['https://images.unsplash.com/photo-1448375240586-882707db888b?w=800', 'https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=800', 'https://images.unsplash.com/photo-1473496169904-658ba7c44d3a?w=800'],
@@ -687,7 +687,7 @@ export const MOCK_PLACES: Place[] = [
     postcode: '7941 AB',
     city: 'Meppel',
     phone: '+31 522 745 090',
-    website: null,
+    website: 'https://grandcafesalud.nl',
     instagram: '@grandcafesalud',
     hours: {
       tuesday: '10:00-22:00',
@@ -723,7 +723,7 @@ export const MOCK_PLACES: Place[] = [
     postcode: '7941 AA',
     city: 'Meppel',
     phone: '+31 522 244 200',
-    website: null,
+    website: 'https://cafedevrijdag.nl',
     instagram: null,
     hours: {
       monday: '16:00-22:00',
@@ -760,7 +760,7 @@ export const MOCK_PLACES: Place[] = [
     postcode: '7941 AB',
     city: 'Meppel',
     phone: '+31 522 745 100',
-    website: null,
+    website: 'https://tasteandtoast.nl',
     instagram: '@tasteandtoast',
     hours: {
       tuesday: '09:00-17:00',
