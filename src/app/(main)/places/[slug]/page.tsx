@@ -61,7 +61,7 @@ export default async function PlaceDetailPage({ params }: PageProps) {
         <article className="pt-24 md:pt-28 pb-24">
           {/* Gallery */}
           <div className="px-6 md:px-8 max-w-7xl mx-auto mb-10">
-            <PlaceGallery photos={place.photos} blurhashes={place.photo_blurhashes} />
+            <PlaceGallery photos={place.photos} />
           </div>
 
           {/* Title & Actions */}

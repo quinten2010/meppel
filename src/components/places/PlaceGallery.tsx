@@ -8,11 +8,10 @@ import { cn } from '@/lib/utils/cn'
 
 interface PlaceGalleryProps {
   photos: string[]
-  blurhashes?: string[]
   className?: string
 }
 
-export function PlaceGallery({ photos, blurhashes, className }: PlaceGalleryProps) {
+export function PlaceGallery({ photos, className }: PlaceGalleryProps) {
   const [isOpen, setIsOpen] = useState(false)
   const [currentIndex, setCurrentIndex] = useState(0)
   const [loadedImages, setLoadedImages] = useState<Set<number>>(new Set())
@@ -77,10 +76,7 @@ export function PlaceGallery({ photos, blurhashes, className }: PlaceGalleryProp
           className="col-span-2 md:col-span-2 relative overflow-hidden group cursor-pointer"
         >
           {!loadedImages.has(0) && (
-            <div
-              className="absolute inset-0 bg-cover bg-center"
-              style={{ backgroundImage: blurhashes?.[0] ? 'url(placeholder)' : undefined }}
-            />
+            <div className="absolute inset-0 bg-gradient-card animate-pulse" />
           )}
 {errorImages.has(0) ? (
             <div className="absolute inset-0 bg-gradient-card flex items-center justify-center">
@@ -112,10 +108,7 @@ export function PlaceGallery({ photos, blurhashes, className }: PlaceGalleryProp
                 className="relative overflow-hidden group cursor-pointer"
               >
                 {!loadedImages.has(idx) && !errorImages.has(idx) && (
-                  <div
-                    className="absolute inset-0 bg-cover bg-center"
-                    style={{ backgroundImage: blurhashes?.[idx] ? 'url(placeholder)' : undefined }}
-                  />
+                  <div className="absolute inset-0 bg-gradient-card animate-pulse" />
                 )}
                 {errorImages.has(idx) ? (
                   <div className="absolute inset-0 bg-gradient-card flex items-center justify-center">
